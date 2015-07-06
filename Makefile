@@ -5,10 +5,10 @@ SDKVERSION = 7.0
 
 include theos/makefiles/common.mk
 
-TWEAK_NAME = AuxoCardMod
-AuxoCardMod_FILES = Tweak.xm
-AuxoCardMod_FRAMEWORKS = UIKit Foundation
-AuxoCardMod_PRIVATE_FRAMEWORKS = BackBoardServices
+TWEAK_NAME = AuxoLECardMod
+AuxoLECardMod_FILES = Tweak.xm
+AuxoLECardMod_FRAMEWORKS = UIKit Foundation
+AuxoLECardMod_PRIVATE_FRAMEWORKS = BackBoardServices
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
