@@ -287,6 +287,8 @@ void quitTopApp()
 }
 
 - (void)auxoCardViewWantsToClose:(AuxoCardView *)cardView {
+	killApplicationForReasonAndReportWithDescription(cardView.displayIdentifier, 1, NO, @"killed from AuxoLegacyEdition");
+	
 	SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
 	SBApplication *application = [ac __auxole_mod_applicationWithIdentifier:cardView.displayIdentifier];
 	SBApplication *frontmostApp = [(SpringBoard *)[UIApplication sharedApplication] _accessibilityFrontMostApplication];
@@ -294,8 +296,6 @@ void quitTopApp()
 	if (application == frontmostApp) {
 		quitTopApp();
 	}
-	
-	killApplicationForReasonAndReportWithDescription(cardView.displayIdentifier, 1, NO, @"killed from AuxoLegacyEdition");
 }
 
 %end
