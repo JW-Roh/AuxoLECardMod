@@ -1,0 +1,15 @@
+Package: me.devbug.auxolecardmod
+Name: AuxoCardMod
+Depends: mobilesubstrate, com.a3tweaks.auxo-le (>= 1.0.2), firmware (>= 8.1)
+Version: 0.1
+Architecture: iphoneos-arm
+Description: Mini mod for Auxo Legacy Edition
+ Mini mod for Auxo Legacy Edition
+ 
+ * Transparent card view if app is not running
+ * Don't delete card view when quit the app
+Maintainer: deVbug <devbug@devbug.me>
+Author: deVbug <devbug@devbug.me>
+Section: Tweaks
+Website: http://slak.kr/iphone/cydia/auxolecardmod/
+Depiction: http://slak.kr/iphone/cydia/auxolecardmod/
