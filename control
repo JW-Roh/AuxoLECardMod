@@ -1,6 +1,6 @@
 Package: me.devbug.auxolecardmod
 Name: AuxoLECardMod
-Depends: mobilesubstrate, com.a3tweaks.auxo-le (>= 1.0.2), firmware (>= 8.1)
+Depends: mobilesubstrate, com.a3tweaks.auxo-le (>= 1.0.2), firmware (>= 7.0)
 Version: 0.1
 Architecture: iphoneos-arm
 Description: Mini mod for Auxo Legacy Edition

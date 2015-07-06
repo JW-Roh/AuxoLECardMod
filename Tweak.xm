@@ -427,6 +427,11 @@ void quitTopApp()
 
 
 %ctor {
+	NSString *identifier = [[NSBundle mainBundle] bundleIdentifier];
+	
+	if (![identifier isEqualToString:@"com.apple.springboard"] || (kCFCoreFoundationVersionNumber < 847.20))
+		return;
+	
 	%init;
 }
 
