@@ -171,13 +171,14 @@ static BOOL nowCoveredAppIsDeactivating = NO;
 
 
 
-void killSBApplicationForReasonAndReportWithDescription(NSString *bundleIdentifier, int reason, BOOL report, NSString *desc)
+void killApplicationForReasonAndReportWithDescription(NSString *bundleIdentifier, int reason, BOOL report, NSString *desc)
 {
 	if (desc == nil)
 		desc = BKSApplicationTerminationReasonDescription(reason);
 	
 	NSString *label = [NSString stringWithFormat:@"TerminateApp: %@ (%@)", bundleIdentifier, desc];
 	
+	// iOS 7
 	if (%c(SBWorkspaceEvent)) {
 		SBWorkspaceEvent *event = [%c(SBWorkspaceEvent) eventWithLabel:label handler:^{
 			BKSTerminateApplicationForReasonAndReportWithDescription(bundleIdentifier, reason, report, desc);
@@ -186,6 +187,7 @@ void killSBApplicationForReasonAndReportWithDescription(NSString *bundleIdentifi
 		SBWorkspaceEventQueue *eventQueue = [%c(SBWorkspaceEventQueue) sharedInstance];
 		[eventQueue executeOrAppendEvent:event];
 	}
+	// iOS 8
 	else if (%c(FBWorkspaceEvent)) {
 		FBWorkspaceEvent *event = [%c(FBWorkspaceEvent) eventWithName:label handler:^{
 			BKSTerminateApplicationForReasonAndReportWithDescription(bundleIdentifier, reason, report, desc);
@@ -203,6 +205,7 @@ void quitTopApp()
 	
 	if (![application isRunning]) return;
 	
+	// iOS 7
 	if (%c(SBWorkspaceEvent)) {
 		SBWorkspaceEventQueue *eventQueue = [%c(SBWorkspaceEventQueue) sharedInstance];
 		if ([eventQueue hasEventWithName:@"QuitTopApp"])
@@ -220,6 +223,7 @@ void quitTopApp()
 		}];
 		[eventQueue executeOrAppendEvent:event];
 	}
+	// iOS 8
 	else if (%c(FBWorkspaceEvent)) {
 		FBWorkspaceEventQueue *eventQueue = [%c(FBWorkspaceEventQueue) sharedInstance];
 		if ([eventQueue hasEventWithName:@"QuitTopApp"])
@@ -291,7 +295,7 @@ void quitTopApp()
 		quitTopApp();
 	}
 	
-	killSBApplicationForReasonAndReportWithDescription(cardView.displayIdentifier, 1, NO, @"killed from AuxoLegacyEdition");
+	killApplicationForReasonAndReportWithDescription(cardView.displayIdentifier, 1, NO, @"killed from AuxoLegacyEdition");
 }
 
 %end
