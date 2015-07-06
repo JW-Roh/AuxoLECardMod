@@ -386,7 +386,6 @@ void quitTopApp()
 		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:processInfo.bundleIdentifier];
 		page.cardView.alpha = DEFAULT_MAX_ALPHA;
 	});
-	%log;
 }
 // }}}
 
