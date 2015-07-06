@@ -51,14 +51,99 @@
 
 
 
-// iOS 7
+// iOS 7 {{{
 @interface BKSApplicationProcessInfo : NSObject
 @property(retain, nonatomic) NSNumber *pidNumber;
 @property(copy, nonatomic) NSString *bundleIdentifier;
 @end
+// }}}
 
 
-// iOS 8
+@interface SpringBoard : UIApplication
+- (id)_accessibilityFrontMostApplication;
+- (BOOL)isLocked;
+@end
+
+@interface SBApplication : NSObject
+- (NSString *)bundleIdentifier;
+- (BOOL)isRunning;
+@end
+@interface SBApplication (firmware7)
+- (id)mainScreenContextHostManager;
+@end
+@interface SBApplication (firmware8)
+- (id)mainSceneID;
+- (id)mainScene;
+@end
+
+@interface SBApplicationController : NSObject
++ (id)sharedInstanceIfExists;
++ (id)sharedInstance;
+@end
+@interface SBApplicationController (firmware7)
+- (id)applicationWithDisplayIdentifier:(id)fp8;
+@end
+@interface SBApplicationController (firmware8)
+- (id)applicationWithBundleIdentifier:(id)fp8;
+@end
+@interface SBApplicationController (new_method)
+- (SBApplication *)__auxole_mod_applicationWithIdentifier:(NSString *)identifier;
+@end
+
+// iOS 7 {{{
+@interface SBWorkspaceEvent : NSObject
++ (id)eventWithLabel:(NSString *)fp8 handler:(void(^)(void))handler;
+- (void)execute;
+@end
+@interface SBWorkspaceEventQueue : NSObject
++ (instancetype)sharedInstance;
+- (BOOL)hasEventWithName:(NSString *)fp8;
+- (void)cancelEventsWithName:(NSString *)fp8;
+- (void)executeOrAppendEvent:(id)fp8;
+- (BOOL)isLocked;
+@end
+// }}}
+
+@interface SBWorkspace : NSObject
+- (void)setCurrentTransaction:(id)fp8;
+@end
+@interface SBWorkspace (firmware7)
+- (id)bksWorkspace;
+- (id)currentTransaction;
+- (id)_applicationForBundleIdentifier:(id)fp8 frontmost:(BOOL)fp12;
+- (id)_selectTransactionForAppActivationToApp:(SBApplication *)fp8 activationHandler:(void(^)(void))handler canDeactivateAlerts:(void)fp12;
+- (id)_selectTransactionForAppActivationToApp:(SBApplication *)fp8 activationHandler:(void(^)(void))handler;
+- (id)_selectTransactionForAppExited:(SBApplication *)fp8;
+- (id)_selectTransactionForAppRelaunch:(SBApplication *)fp8;
+- (id)_selectTransactionForAppActivationUnderMainScreenLock:(SBApplication *)fp8;
+- (id)_selectTransactionForReturningToTheLockScreenFromApp:(SBApplication *)fp8 forceToBuddy:(BOOL)fp12 withActivationHandler:(void(^)(void))handler;
+- (id)_selectTransactionForReturningToTheLockScreenWithActivationHandler:(void(^)(void))handler;
+@end
+@interface SBWorkspace (firmware8)
+- (id)_selectTransactionForAppActivationToApp:(id)fp8 canDeactivateAlerts:(BOOL)fp12 withResult:(id)block;
+- (id)_selectTransactionForAppActivationToApp:(id)fp8 withResult:(id)block;
+- (id)_selectTransactionForAppActivationUnderMainScreenLock:(id)fp8 forRelaunch:(BOOL)fp12 withResult:(id)block;
+- (id)_selectTransactionForReturningToTheLockScreenFromApp:(id)fp8 forceToBuddy:(BOOL)fp12 withResult:(id)block;
+- (id)_selectTransactionForReturningToTheLockScreenWithResult:(id)block;
+@end
+
+// iOS 7 {{{
+@interface SBWindowContextHostWrapperView : UIView @end
+@interface SBWindowContextHostManager : NSObject
+- (id)identifier;
+- (id)screen;
+- (void)disableHostingForRequester:(id)fp8;
+- (SBWindowContextHostWrapperView *)hostViewForRequester:(id)fp8 enableAndOrderFront:(BOOL)fp12;
+- (SBWindowContextHostWrapperView *)hostViewForRequester:(id)fp8;
+- (void)hideHostViewOnDefaultWindowForRequester:(id)fp8 priority:(NSInteger)fp12;
+- (void)hideHostViewOnDefaultWindowForRequester:(id)fp8;
+- (void)unhideHostViewOnDefaultWindowForRequester:(id)fp8;
+@end
+// }}}
+
+
+
+// iOS 8 {{{
 @interface FBProcess : NSObject
 @property(readonly, copy, nonatomic) NSString *bundleIdentifier;
 @end
@@ -94,88 +179,6 @@
 @end
 
 
-//
-@interface SpringBoard : UIApplication
-- (id)_accessibilityFrontMostApplication;
-- (BOOL)isLocked;
-@end
-
-@interface SBApplication : NSObject
-- (NSString *)bundleIdentifier;
-- (BOOL)isRunning;
-
-// iOS 7
-- (id)mainScreenContextHostManager;
-
-// iOS 8
-- (id)mainSceneID;
-- (id)mainScene;
-@end
-
-@interface SBApplicationController : NSObject
-+ (id)sharedInstanceIfExists;
-+ (id)sharedInstance;
-
-// iOS 7
-- (id)applicationWithDisplayIdentifier:(id)fp8;
-
-// iOS 8
-- (id)applicationWithBundleIdentifier:(id)fp8;
-
-// +
-- (SBApplication *)__auxole_mod_applicationWithIdentifier:(NSString *)identifier;
-@end
-
-// iOS 7
-@interface SBWorkspaceEvent : NSObject
-+ (id)eventWithLabel:(NSString *)fp8 handler:(void(^)(void))handler;
-- (void)execute;
-@end
-@interface SBWorkspaceEventQueue : NSObject
-+ (instancetype)sharedInstance;
-- (BOOL)hasEventWithName:(NSString *)fp8;
-- (void)cancelEventsWithName:(NSString *)fp8;
-- (void)executeOrAppendEvent:(id)fp8;
-- (BOOL)isLocked;
-@end
-
-@interface SBWorkspace : NSObject
-- (void)setCurrentTransaction:(id)fp8;
-
-// iOS 7
-- (id)bksWorkspace;
-- (id)currentTransaction;
-- (id)_applicationForBundleIdentifier:(id)fp8 frontmost:(BOOL)fp12;
-- (id)_selectTransactionForAppActivationToApp:(SBApplication *)fp8 activationHandler:(void(^)(void))handler canDeactivateAlerts:(void)fp12;
-- (id)_selectTransactionForAppActivationToApp:(SBApplication *)fp8 activationHandler:(void(^)(void))handler;
-- (id)_selectTransactionForAppExited:(SBApplication *)fp8;
-- (id)_selectTransactionForAppRelaunch:(SBApplication *)fp8;
-- (id)_selectTransactionForAppActivationUnderMainScreenLock:(SBApplication *)fp8;
-- (id)_selectTransactionForReturningToTheLockScreenFromApp:(SBApplication *)fp8 forceToBuddy:(BOOL)fp12 withActivationHandler:(void(^)(void))handler;
-- (id)_selectTransactionForReturningToTheLockScreenWithActivationHandler:(void(^)(void))handler;
-
-// iOS 8
-- (id)_selectTransactionForAppActivationToApp:(id)fp8 canDeactivateAlerts:(BOOL)fp12 withResult:(id)block;
-- (id)_selectTransactionForAppActivationToApp:(id)fp8 withResult:(id)block;
-- (id)_selectTransactionForAppActivationUnderMainScreenLock:(id)fp8 forRelaunch:(BOOL)fp12 withResult:(id)block;
-- (id)_selectTransactionForReturningToTheLockScreenFromApp:(id)fp8 forceToBuddy:(BOOL)fp12 withResult:(id)block;
-- (id)_selectTransactionForReturningToTheLockScreenWithResult:(id)block;
-@end
-
-// iOS 7
-@interface SBWindowContextHostWrapperView : UIView @end
-@interface SBWindowContextHostManager : NSObject
-- (id)identifier;
-- (id)screen;
-- (void)disableHostingForRequester:(id)fp8;
-- (SBWindowContextHostWrapperView *)hostViewForRequester:(id)fp8 enableAndOrderFront:(BOOL)fp12;
-- (SBWindowContextHostWrapperView *)hostViewForRequester:(id)fp8;
-- (void)hideHostViewOnDefaultWindowForRequester:(id)fp8 priority:(NSInteger)fp12;
-- (void)hideHostViewOnDefaultWindowForRequester:(id)fp8;
-- (void)unhideHostViewOnDefaultWindowForRequester:(id)fp8;
-@end
-
-// iOS 8
 @interface FBScene : NSObject
 @property(readonly, retain, nonatomic) FBProcess *clientProcess;
 @property(readonly, copy, nonatomic) NSString *identifier;
@@ -190,11 +193,12 @@
 @property(readonly, nonatomic) FBScene *scene;
 @property(copy, nonatomic) NSString *identifier;
 - (void)disableHostingForRequester:(id)arg1;
-- (id)hostViewForRequester:(id)arg1 enableAndOrderFront:(_Bool)arg2 appearanceStyle:(NSUInteger)arg3;
-- (id)hostViewForRequester:(id)arg1 enableAndOrderFront:(_Bool)arg2;
+- (id)hostViewForRequester:(id)arg1 enableAndOrderFront:(BOOL)arg2 appearanceStyle:(NSUInteger)arg3;
+- (id)hostViewForRequester:(id)arg1 enableAndOrderFront:(BOOL)arg2;
 - (id)hostViewForRequester:(id)arg1 appearanceStyle:(NSUInteger)arg2;
 - (id)hostViewForRequester:(id)arg1;
 @end
+// }}}
 
 
 
@@ -364,7 +368,6 @@ void quitTopApp()
 %hook SBWorkspace
 
 // iOS 7 {{{
-// TODO : need to test on iOS 7
 - (void)workspace:(id)workspace applicationExited:(NSString *)identifier withInfo:(id)info {
 	%orig;
 	
