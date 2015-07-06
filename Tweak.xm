@@ -1,47 +1,23 @@
 
 
 @interface AuxoAnimator : NSObject
-- (void)invalidate;
-- (void)animateFrom:(CGFloat)arg1 to:(CGFloat)arg2 fullDuration:(NSTimeInterval)arg3;
 - (void)animateFrom:(CGFloat)arg1 to:(CGFloat)arg2 duration:(NSTimeInterval)arg3;
 - (void)animateFrom:(CGFloat)arg1 to:(CGFloat)arg2 duration:(NSTimeInterval)arg3 startVelocity:(CGFloat)arg4;
-@property(readonly, nonatomic) CGFloat currentAnimationDuration;
-@property(readonly, nonatomic) CGFloat destinationValue;
-@property(nonatomic) CGFloat value;
 @end
 
-@interface AuxoCardView : UIView {
-	AuxoAnimator *animator;
-}
-+ (id)sharedIconViewMap;
-+ (id)appSliderController;
+@interface AuxoCardView : UIView
 @property(readonly, nonatomic) NSString *displayIdentifier;
-//@property(readonly, nonatomic) SBAppSliderSnapshotView *snapshotView;
-@property(readonly, nonatomic) UIView *snapshotContainer;
-- (void)executeWhenLaunchedBlocks;
-//- (void)performWhenLaunched:(CDUnknownBlockType)arg1;
-- (void)updateAdaptiveColors;
-- (void)layoutSubviews;
-- (void)loadDisplayIdentifier:(id)arg1 withQueue:(id)arg2;
-- (void)loadSnapshotViewIfMissingOnQueue:(id)arg1;
 @end
 
 @interface AuxoCollectionViewCell : UICollectionViewCell
 @property(readonly, nonatomic) AuxoCardView *cardView;
-- (void)restoreCardView;
 @end
 
 @interface AuxoCollectionView : UICollectionView {
-	NSArray *items;
 	AuxoCollectionViewCell *justSelectedCell;
 	BOOL interactivelyAnimating;
-	UIPanGestureRecognizer *panRecognizer;
-	AuxoAnimator *animator;
-	struct CGPoint animatingOffset;
 }
 + (id)activeCollectionView;
-- (void)collectionView:(id)arg1 willDisplayCell:(id)arg2 forItemAtIndexPath:(id)arg3;
-- (id)collectionView:(id)arg1 cellForItemAtIndexPath:(id)arg2;
 - (void)auxoCardViewWantsToClearAll:(id)arg1;
 - (void)commitClearAll;
 - (void)auxoCardViewWantsToClose:(id)arg1;
@@ -53,7 +29,6 @@
 
 // iOS 7 {{{
 @interface BKSApplicationProcessInfo : NSObject
-@property(retain, nonatomic) NSNumber *pidNumber;
 @property(copy, nonatomic) NSString *bundleIdentifier;
 @end
 // }}}
@@ -100,7 +75,6 @@
 - (BOOL)hasEventWithName:(NSString *)fp8;
 - (void)cancelEventsWithName:(NSString *)fp8;
 - (void)executeOrAppendEvent:(id)fp8;
-- (BOOL)isLocked;
 @end
 // }}}
 
@@ -108,33 +82,19 @@
 - (void)setCurrentTransaction:(id)fp8;
 @end
 @interface SBWorkspace (firmware7)
-- (id)bksWorkspace;
 - (id)currentTransaction;
-- (id)_applicationForBundleIdentifier:(id)fp8 frontmost:(BOOL)fp12;
-- (id)_selectTransactionForAppActivationToApp:(SBApplication *)fp8 activationHandler:(void(^)(void))handler canDeactivateAlerts:(void)fp12;
 - (id)_selectTransactionForAppActivationToApp:(SBApplication *)fp8 activationHandler:(void(^)(void))handler;
-- (id)_selectTransactionForAppExited:(SBApplication *)fp8;
-- (id)_selectTransactionForAppRelaunch:(SBApplication *)fp8;
-- (id)_selectTransactionForAppActivationUnderMainScreenLock:(SBApplication *)fp8;
-- (id)_selectTransactionForReturningToTheLockScreenFromApp:(SBApplication *)fp8 forceToBuddy:(BOOL)fp12 withActivationHandler:(void(^)(void))handler;
 - (id)_selectTransactionForReturningToTheLockScreenWithActivationHandler:(void(^)(void))handler;
 @end
 @interface SBWorkspace (firmware8)
-- (id)_selectTransactionForAppActivationToApp:(id)fp8 canDeactivateAlerts:(BOOL)fp12 withResult:(id)block;
 - (id)_selectTransactionForAppActivationToApp:(id)fp8 withResult:(id)block;
-- (id)_selectTransactionForAppActivationUnderMainScreenLock:(id)fp8 forRelaunch:(BOOL)fp12 withResult:(id)block;
-- (id)_selectTransactionForReturningToTheLockScreenFromApp:(id)fp8 forceToBuddy:(BOOL)fp12 withResult:(id)block;
 - (id)_selectTransactionForReturningToTheLockScreenWithResult:(id)block;
 @end
 
 // iOS 7 {{{
-@interface SBWindowContextHostWrapperView : UIView @end
 @interface SBWindowContextHostManager : NSObject
 - (id)identifier;
-- (id)screen;
 - (void)disableHostingForRequester:(id)fp8;
-- (SBWindowContextHostWrapperView *)hostViewForRequester:(id)fp8 enableAndOrderFront:(BOOL)fp12;
-- (SBWindowContextHostWrapperView *)hostViewForRequester:(id)fp8;
 - (void)hideHostViewOnDefaultWindowForRequester:(id)fp8 priority:(NSInteger)fp12;
 - (void)hideHostViewOnDefaultWindowForRequester:(id)fp8;
 - (void)unhideHostViewOnDefaultWindowForRequester:(id)fp8;
@@ -161,19 +121,12 @@
 @end
 @interface BSEventQueue : NSObject
 @property(retain, nonatomic) BSEventQueueEvent *executingEvent;
-@property(readonly, copy, nonatomic) NSArray *pendingEvents;
 - (BOOL)hasEventWithName:(id)arg1;
 - (BOOL)hasEventWithPrefix:(id)arg1;
 - (void)cancelEventsWithName:(id)arg1;
-- (void)flushAllEvents;
-- (void)flushPendingEvents;
-- (void)flushEvents:(id)arg1;
-- (void)executeOrInsertEvents:(id)arg1 atPosition:(int)arg2;
-- (void)executeOrInsertEvent:(id)arg1 atPosition:(int)arg2;
 @end
 @interface FBWorkspaceEventQueue : BSEventQueue
 + (id)sharedInstance;
-- (void)executeOrPrependEvents:(id)arg1;
 - (void)executeOrPrependEvent:(id)arg1;
 - (void)executeOrAppendEvent:(id)arg1;
 @end
@@ -186,16 +139,13 @@
 @interface FBSceneManager : NSObject
 + (id)sharedInstance;
 - (id)sceneWithIdentifier:(id)arg1;
-- (id)contextManagerForSceneID:(id)arg1;
 - (id)hostManagerForSceneID:(id)arg1;
 @end
 @interface FBWindowContextHostManager : NSObject
 @property(readonly, nonatomic) FBScene *scene;
 @property(copy, nonatomic) NSString *identifier;
 - (void)disableHostingForRequester:(id)arg1;
-- (id)hostViewForRequester:(id)arg1 enableAndOrderFront:(BOOL)arg2 appearanceStyle:(NSUInteger)arg3;
 - (id)hostViewForRequester:(id)arg1 enableAndOrderFront:(BOOL)arg2;
-- (id)hostViewForRequester:(id)arg1 appearanceStyle:(NSUInteger)arg2;
 - (id)hostViewForRequester:(id)arg1;
 @end
 // }}}
