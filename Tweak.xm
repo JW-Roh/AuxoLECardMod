@@ -51,6 +51,14 @@
 
 
 
+// iOS 7
+@interface BKSApplicationProcessInfo : NSObject
+@property(retain, nonatomic) NSNumber *pidNumber;
+@property(copy, nonatomic) NSString *bundleIdentifier;
+@end
+
+
+// iOS 8
 @interface FBProcess : NSObject
 @property(readonly, copy, nonatomic) NSString *bundleIdentifier;
 @end
@@ -86,6 +94,7 @@
 @end
 
 
+//
 @interface SpringBoard : UIApplication
 - (id)_accessibilityFrontMostApplication;
 - (BOOL)isLocked;
@@ -106,9 +115,18 @@
 @interface SBApplicationController : NSObject
 + (id)sharedInstanceIfExists;
 + (id)sharedInstance;
+
+// iOS 7
+- (id)applicationWithDisplayIdentifier:(id)fp8;
+
+// iOS 8
 - (id)applicationWithBundleIdentifier:(id)fp8;
+
+// +
+- (SBApplication *)__auxole_mod_applicationWithIdentifier:(NSString *)identifier;
 @end
 
+// iOS 7
 @interface SBWorkspaceEvent : NSObject
 + (id)eventWithLabel:(NSString *)fp8 handler:(void(^)(void))handler;
 - (void)execute;
@@ -280,14 +298,14 @@ void quitTopApp()
 	%orig;
 	
 	SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
-	self.alpha = [[ac applicationWithBundleIdentifier:displayIdentifier] isRunning] ? DEFAULT_MAX_ALPHA : DEFAULT_MIN_ALPHA;
+	self.alpha = [[ac __auxole_mod_applicationWithIdentifier:displayIdentifier] isRunning] ? DEFAULT_MAX_ALPHA : DEFAULT_MIN_ALPHA;
 }
 
 - (void)layoutSubviews {
 	%orig;
 	
 	SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
-	self.alpha = [[ac applicationWithBundleIdentifier:self.displayIdentifier] isRunning] ? DEFAULT_MAX_ALPHA : DEFAULT_MIN_ALPHA;
+	self.alpha = [[ac __auxole_mod_applicationWithIdentifier:self.displayIdentifier] isRunning] ? DEFAULT_MAX_ALPHA : DEFAULT_MIN_ALPHA;
 }
 
 %end
@@ -303,7 +321,7 @@ void quitTopApp()
 		
 		SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
 		
-		if (![[ac applicationWithBundleIdentifier:justSelectedCell.cardView.displayIdentifier] isRunning])
+		if (![[ac __auxole_mod_applicationWithIdentifier:justSelectedCell.cardView.displayIdentifier] isRunning])
 			justSelectedCell.cardView.alpha = DEFAULT_MIN_ALPHA + self.interactiveActivationProgress;
 		else
 			justSelectedCell.cardView.alpha = DEFAULT_MAX_ALPHA;
@@ -312,7 +330,7 @@ void quitTopApp()
 
 - (void)auxoCardViewWantsToClose:(AuxoCardView *)cardView {
 	SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
-	SBApplication *application = [ac applicationWithBundleIdentifier:cardView.displayIdentifier];
+	SBApplication *application = [ac __auxole_mod_applicationWithIdentifier:cardView.displayIdentifier];
 	SBApplication *frontmostApp = [(SpringBoard *)[UIApplication sharedApplication] _accessibilityFrontMostApplication];
 	
 	if (application == frontmostApp) {
@@ -357,14 +375,15 @@ void quitTopApp()
 	});
 }
 
-- (void)workspace:(id)workspace applicationDidStartLaunching:(NSString *)identifier {
+- (void)workspace:(id)workspace applicationDidStartLaunching:(BKSApplicationProcessInfo *)processInfo {
 	%orig;
 	
 	dispatch_async(dispatch_get_main_queue(), ^{
 		AuxoCollectionView *acv = [%c(AuxoCollectionView) activeCollectionView];
-		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:identifier];
+		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:processInfo.bundleIdentifier];
 		page.cardView.alpha = DEFAULT_MAX_ALPHA;
 	});
+	%log;
 }
 // }}}
 
@@ -409,6 +428,25 @@ void quitTopApp()
 	if (nowCoveredAppIsDeactivating) return NO;
 	
 	return %orig;
+}
+
+%end
+
+
+%hook SBApplicationController
+
+%new
+- (SBApplication *)__auxole_mod_applicationWithIdentifier:(NSString *)identifier {
+	SBApplication *app = nil;
+	
+	if ([self respondsToSelector:@selector(applicationWithDisplayIdentifier:)]) {
+		app = [self applicationWithDisplayIdentifier:identifier];
+	}
+	else if ([self respondsToSelector:@selector(applicationWithBundleIdentifier:)]) {
+		app = [self applicationWithBundleIdentifier:identifier];
+	}
+	
+	return app;
 }
 
 %end
