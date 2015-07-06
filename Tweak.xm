@@ -229,6 +229,8 @@ void quitTopApp()
 {
 	SBApplication *application = [(SpringBoard *)[UIApplication sharedApplication] _accessibilityFrontMostApplication];
 	
+	if (![application isRunning]) return;
+	
 	if (%c(SBWorkspaceEvent)) {
 		SBWorkspaceEventQueue *eventQueue = [%c(SBWorkspaceEventQueue) sharedInstance];
 		if ([eventQueue hasEventWithName:@"QuitTopApp"])
