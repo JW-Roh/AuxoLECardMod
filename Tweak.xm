@@ -343,6 +343,30 @@ void quitTopApp()
 
 %hook SBWorkspace
 
+// iOS 7 {{{
+// TODO : need to test on iOS 7
+- (void)workspace:(id)workspace applicationExited:(NSString *)identifier withInfo:(id)info {
+	%orig;
+	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		AuxoCollectionView *acv = [%c(AuxoCollectionView) activeCollectionView];
+		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:identifier];
+		page.cardView.alpha = DEFAULT_MIN_ALPHA;
+	});
+}
+
+- (void)workspace:(id)workspace applicationDidStartLaunching:(NSString *)identifier {
+	%orig;
+	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		AuxoCollectionView *acv = [%c(AuxoCollectionView) activeCollectionView];
+		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:identifier];
+		page.cardView.alpha = DEFAULT_MAX_ALPHA;
+	});
+}
+// }}}
+
+// iOS 8 {{{
 - (void)applicationProcessDidExit:(FBApplicationProcess *)applicationProcess withContext:(id)context {
 	%orig;
 	
@@ -362,6 +386,7 @@ void quitTopApp()
 		page.cardView.alpha = DEFAULT_MAX_ALPHA;
 	});
 }
+// }}}
 
 - (id)init {
 	id rtn = %orig;

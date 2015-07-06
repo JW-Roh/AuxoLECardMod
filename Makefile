@@ -1,4 +1,4 @@
-ARCHS=armv7 arm64
+ARCHS = armv7 arm64
 FW_DEVICE_IP = 192.168.1.9
 TARGET_IPHONEOS_DEPLOYMENT_VERSION = 7.0
 SDKVERSION = 7.0
@@ -8,7 +8,7 @@ include theos/makefiles/common.mk
 TWEAK_NAME = AuxoCardMod
 AuxoCardMod_FILES = Tweak.xm
 AuxoCardMod_FRAMEWORKS = UIKit Foundation
-AuxoCardMod_PRIVATE_FRAMEWORKS =BackBoardServices
+AuxoCardMod_PRIVATE_FRAMEWORKS = BackBoardServices
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
