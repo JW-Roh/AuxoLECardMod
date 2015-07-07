@@ -172,6 +172,7 @@ static BOOL nowCoveredAppIsDeactivating = NO;
 
 static CGFloat g_maxAlpha = DEFAULT_MAX_ALPHA;
 static CGFloat g_minAlpha = DEFAULT_MIN_ALPHA;
+static BOOL g_keepCardView = YES;
 
 
 
@@ -291,14 +292,22 @@ void quitTopApp()
 }
 
 - (void)auxoCardViewWantsToClose:(AuxoCardView *)cardView {
-	killApplicationForReasonAndReportWithDescription(cardView.displayIdentifier, 1, NO, @"killed from AuxoLegacyEdition");
-	
-	SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
-	SBApplication *application = [ac __auxole_mod_applicationWithIdentifier:cardView.displayIdentifier];
-	SBApplication *frontmostApp = [(SpringBoard *)[UIApplication sharedApplication] _accessibilityFrontMostApplication];
-	
-	if (application == frontmostApp) {
-		quitTopApp();
+	if (g_keepCardView) {
+		SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
+		SBApplication *application = [ac __auxole_mod_applicationWithIdentifier:cardView.displayIdentifier];
+		
+		if (![application isRunning]) return;
+		
+		killApplicationForReasonAndReportWithDescription(cardView.displayIdentifier, 1, NO, @"killed from AuxoLegacyEdition");
+		
+		SBApplication *frontmostApp = [(SpringBoard *)[UIApplication sharedApplication] _accessibilityFrontMostApplication];
+		
+		if (application == frontmostApp) {
+			quitTopApp();
+		}
+	}
+	else {
+		%orig;
 	}
 }
 
@@ -310,7 +319,7 @@ void quitTopApp()
 	BOOL down = (successThreshold > DEFAULT_UP_THRESHOLD);
 	BOOL rtn = %orig;
 	
-	if (down && rtn) {
+	if (down && rtn && g_keepCardView) {
 		[self animateFrom:DEFAULT_DOWN_THRESHOLD to:0.0f duration:DEFAULT_RETURN_DURATION];
 	}
 	
