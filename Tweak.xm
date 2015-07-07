@@ -397,16 +397,21 @@ void quitTopApp()
 
 %new
 - (SBApplication *)__auxole_mod_applicationWithIdentifier:(NSString *)identifier {
-	SBApplication *app = nil;
+	static SEL selector = nil;
+	static dispatch_once_t once;
 	
-	if ([self respondsToSelector:@selector(applicationWithDisplayIdentifier:)]) {
-		app = [self applicationWithDisplayIdentifier:identifier];
-	}
-	else if ([self respondsToSelector:@selector(applicationWithBundleIdentifier:)]) {
-		app = [self applicationWithBundleIdentifier:identifier];
-	}
+	dispatch_once(&once, ^{
+		if ([self respondsToSelector:@selector(applicationWithBundleIdentifier:)]) {
+			selector = @selector(applicationWithBundleIdentifier:);
+		}
+		else if ([self respondsToSelector:@selector(applicationWithDisplayIdentifier:)]) {
+			selector = @selector(applicationWithDisplayIdentifier:);
+		}
+	});
 	
-	return app;
+	if (selector == nil) return nil;
+	
+	return [self performSelector:selector withObject:identifier];
 }
 
 %end
