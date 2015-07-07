@@ -170,7 +170,6 @@ extern "C" {
 static SBWorkspace *g_sbWorkspace = nil;
 static BOOL nowCoveredAppIsDeactivating = NO;
 
-static CGFloat g_maxAlpha = DEFAULT_MAX_ALPHA;
 static CGFloat g_minAlpha = DEFAULT_MIN_ALPHA;
 static BOOL g_keepCardView = YES;
 
@@ -261,14 +260,14 @@ void quitTopApp()
 	%orig;
 	
 	SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
-	self.alpha = [[ac __auxole_mod_applicationWithIdentifier:displayIdentifier] isRunning] ? g_maxAlpha : g_minAlpha;
+	self.alpha = [[ac __auxole_mod_applicationWithIdentifier:displayIdentifier] isRunning] ? DEFAULT_MAX_ALPHA : g_minAlpha;
 }
 
 - (void)layoutSubviews {
 	%orig;
 	
 	SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
-	self.alpha = [[ac __auxole_mod_applicationWithIdentifier:self.displayIdentifier] isRunning] ? g_maxAlpha : g_minAlpha;
+	self.alpha = [[ac __auxole_mod_applicationWithIdentifier:self.displayIdentifier] isRunning] ? DEFAULT_MAX_ALPHA : g_minAlpha;
 }
 
 %end
@@ -285,9 +284,9 @@ void quitTopApp()
 		SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
 		
 		if (![[ac __auxole_mod_applicationWithIdentifier:justSelectedCell.cardView.displayIdentifier] isRunning])
-			justSelectedCell.cardView.alpha = g_minAlpha + self.interactiveActivationProgress * fabs(g_maxAlpha - g_minAlpha);
+			justSelectedCell.cardView.alpha = g_minAlpha + self.interactiveActivationProgress * fabs(DEFAULT_MAX_ALPHA - g_minAlpha);
 		else
-			justSelectedCell.cardView.alpha = g_maxAlpha;
+			justSelectedCell.cardView.alpha = DEFAULT_MAX_ALPHA;
 	}
 }
 
@@ -351,7 +350,7 @@ void quitTopApp()
 	dispatch_async(dispatch_get_main_queue(), ^{
 		AuxoCollectionView *acv = [%c(AuxoCollectionView) activeCollectionView];
 		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:processInfo.bundleIdentifier];
-		page.cardView.alpha = g_maxAlpha;
+		page.cardView.alpha = DEFAULT_MAX_ALPHA;
 	});
 }
 // }}}
@@ -373,7 +372,7 @@ void quitTopApp()
 	dispatch_async(dispatch_get_main_queue(), ^{
 		AuxoCollectionView *acv = [%c(AuxoCollectionView) activeCollectionView];
 		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:applicationProcess.bundleIdentifier];
-		page.cardView.alpha = g_maxAlpha;
+		page.cardView.alpha = DEFAULT_MAX_ALPHA;
 	});
 }
 // }}}
