@@ -284,7 +284,7 @@ void quitTopApp()
 		SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
 		
 		if (![[ac __auxole_mod_applicationWithIdentifier:justSelectedCell.cardView.displayIdentifier] isRunning])
-			justSelectedCell.cardView.alpha = g_minAlpha + self.interactiveActivationProgress;
+			justSelectedCell.cardView.alpha = g_minAlpha + self.interactiveActivationProgress * fabs(g_maxAlpha - g_minAlpha);
 		else
 			justSelectedCell.cardView.alpha = g_maxAlpha;
 	}
