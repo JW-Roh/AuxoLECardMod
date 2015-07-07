@@ -164,10 +164,14 @@ extern "C" {
 #define DEFAULT_MIN_ALPHA				0.5f
 #define DEFAULT_DOWN_THRESHOLD			170.0f
 #define DEFAULT_UP_THRESHOLD			1.0f
+#define DEFAULT_RETURN_DURATION			0.3f
 
 
 static SBWorkspace *g_sbWorkspace = nil;
 static BOOL nowCoveredAppIsDeactivating = NO;
+
+static CGFloat g_maxAlpha = DEFAULT_MAX_ALPHA;
+static CGFloat g_minAlpha = DEFAULT_MIN_ALPHA;
 
 
 
@@ -256,14 +260,14 @@ void quitTopApp()
 	%orig;
 	
 	SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
-	self.alpha = [[ac __auxole_mod_applicationWithIdentifier:displayIdentifier] isRunning] ? DEFAULT_MAX_ALPHA : DEFAULT_MIN_ALPHA;
+	self.alpha = [[ac __auxole_mod_applicationWithIdentifier:displayIdentifier] isRunning] ? g_maxAlpha : g_minAlpha;
 }
 
 - (void)layoutSubviews {
 	%orig;
 	
 	SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
-	self.alpha = [[ac __auxole_mod_applicationWithIdentifier:self.displayIdentifier] isRunning] ? DEFAULT_MAX_ALPHA : DEFAULT_MIN_ALPHA;
+	self.alpha = [[ac __auxole_mod_applicationWithIdentifier:self.displayIdentifier] isRunning] ? g_maxAlpha : g_minAlpha;
 }
 
 %end
@@ -280,9 +284,9 @@ void quitTopApp()
 		SBApplicationController *ac = [%c(SBApplicationController) sharedInstanceIfExists];
 		
 		if (![[ac __auxole_mod_applicationWithIdentifier:justSelectedCell.cardView.displayIdentifier] isRunning])
-			justSelectedCell.cardView.alpha = DEFAULT_MIN_ALPHA + self.interactiveActivationProgress;
+			justSelectedCell.cardView.alpha = g_minAlpha + self.interactiveActivationProgress;
 		else
-			justSelectedCell.cardView.alpha = DEFAULT_MAX_ALPHA;
+			justSelectedCell.cardView.alpha = g_maxAlpha;
 	}
 }
 
@@ -307,7 +311,7 @@ void quitTopApp()
 	BOOL rtn = %orig;
 	
 	if (down && rtn) {
-		[self animateFrom:DEFAULT_DOWN_THRESHOLD to:0.0f duration:0.3f];
+		[self animateFrom:DEFAULT_DOWN_THRESHOLD to:0.0f duration:DEFAULT_RETURN_DURATION];
 	}
 	
 	return rtn;
@@ -328,7 +332,7 @@ void quitTopApp()
 	dispatch_async(dispatch_get_main_queue(), ^{
 		AuxoCollectionView *acv = [%c(AuxoCollectionView) activeCollectionView];
 		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:identifier];
-		page.cardView.alpha = DEFAULT_MIN_ALPHA;
+		page.cardView.alpha = g_minAlpha;
 	});
 }
 
@@ -338,7 +342,7 @@ void quitTopApp()
 	dispatch_async(dispatch_get_main_queue(), ^{
 		AuxoCollectionView *acv = [%c(AuxoCollectionView) activeCollectionView];
 		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:processInfo.bundleIdentifier];
-		page.cardView.alpha = DEFAULT_MAX_ALPHA;
+		page.cardView.alpha = g_maxAlpha;
 	});
 }
 // }}}
@@ -350,7 +354,7 @@ void quitTopApp()
 	dispatch_async(dispatch_get_main_queue(), ^{
 		AuxoCollectionView *acv = [%c(AuxoCollectionView) activeCollectionView];
 		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:applicationProcess.bundleIdentifier];
-		page.cardView.alpha = DEFAULT_MIN_ALPHA;
+		page.cardView.alpha = g_minAlpha;
 	});
 }
 
@@ -360,7 +364,7 @@ void quitTopApp()
 	dispatch_async(dispatch_get_main_queue(), ^{
 		AuxoCollectionView *acv = [%c(AuxoCollectionView) activeCollectionView];
 		AuxoCollectionViewCell *page = [acv pageForDisplayIdentifier:applicationProcess.bundleIdentifier];
-		page.cardView.alpha = DEFAULT_MAX_ALPHA;
+		page.cardView.alpha = g_maxAlpha;
 	});
 }
 // }}}
