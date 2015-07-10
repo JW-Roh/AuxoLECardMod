@@ -99,7 +99,18 @@
 - (void)hideHostViewOnDefaultWindowForRequester:(id)fp8;
 - (void)unhideHostViewOnDefaultWindowForRequester:(id)fp8;
 @end
+
+@interface SBAppSliderController : NSObject
+- (void)_updateSnapshots;
+@end
 // }}}
+
+@interface SBUIController : NSObject
++ (id)sharedInstanceIfExists;
++ (id)sharedInstance;
+- (id)switcherController;
+- (BOOL)isAppSwitcherShowing;
+@end
 
 
 
@@ -148,6 +159,12 @@
 - (id)hostViewForRequester:(id)arg1 enableAndOrderFront:(BOOL)arg2;
 - (id)hostViewForRequester:(id)arg1;
 @end
+
+@interface SBAppSwitcherController : NSObject
+- (void)_updateSnapshotsForce:(BOOL)fp8;
+- (void)_updateSnapshots;
+- (void)_rebuildAppListCache;
+@end
 // }}}
 
 
@@ -169,6 +186,7 @@ extern "C" {
 
 static SBWorkspace *g_sbWorkspace = nil;
 static BOOL nowCoveredAppIsDeactivating = NO;
+static BOOL springBoardLoaded = NO;
 
 static CGFloat g_minAlpha = DEFAULT_MIN_ALPHA;
 static BOOL g_keepCardView = YES;
@@ -422,6 +440,41 @@ void quitTopApp()
 	return [self performSelector:selector withObject:identifier];
 }
 
+- (void)_sendInstalledAppsDidChangeNotification:(NSSet *)addedApps removed:(NSSet *)removedApps modified:(NSSet *)modifiedApps {
+	%orig;
+	
+	if (springBoardLoaded == NO) return;
+	
+	if ([removedApps count] != 0) {
+		SBUIController *uic = [%c(SBUIController) sharedInstanceIfExists];
+		id appSwitcher = [uic switcherController];
+		
+		if ([appSwitcher respondsToSelector:@selector(_updateSnapshotsForce:)]) {
+			[appSwitcher performSelector:@selector(_updateSnapshotsForce:) withObject:@(YES)];
+			[appSwitcher performSelector:@selector(_rebuildAppListCache)];
+		}
+		else {
+			[appSwitcher performSelector:@selector(_updateSnapshots)];
+		}
+	}
+}
+
+%end
+
+
+%hook SBAppSwitcherModel
+
++ (BOOL)instancesRespondToSelector:(SEL)selector {
+	if ([NSStringFromSelector(selector) isEqualToString:@"snapshot"]) {
+		BOOL flag = %orig(@selector(snapshotOfFlattenedArrayOfAppIdentifiersWhichIsOnlyTemporary));
+		
+		if (flag)
+			return NO;
+	}
+	
+	return %orig;
+}
+
 %end
 
 
@@ -430,6 +483,7 @@ void quitTopApp()
 - (void)applicationDidFinishLaunching:(id)application {
 	%orig;
 	
+	springBoardLoaded = YES;
 	%init(AuxoLegacyEdition);
 }
 
