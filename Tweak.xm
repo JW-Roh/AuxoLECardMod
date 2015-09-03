@@ -315,13 +315,13 @@ void quitTopApp()
 		
 		if (![application isRunning]) return;
 		
-		killApplicationForReasonAndReportWithDescription(cardView.displayIdentifier, 1, NO, @"killed from AuxoLegacyEdition");
-		
 		SBApplication *frontmostApp = [(SpringBoard *)[UIApplication sharedApplication] _accessibilityFrontMostApplication];
 		
 		if (application == frontmostApp) {
 			quitTopApp();
 		}
+		
+		killApplicationForReasonAndReportWithDescription(cardView.displayIdentifier, 1, NO, @"killed from AuxoLegacyEdition");
 	}
 	else {
 		%orig;
