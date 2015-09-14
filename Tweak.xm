@@ -328,6 +328,27 @@ void quitTopApp()
 	}
 }
 
+- (void)activateApplicationWithDisplayIdentifier:(NSString *)identifier fromCell:(id)cell {
+	// iOS 7
+	if (%c(SBWorkspaceEvent)) {
+		SBWorkspaceEvent *event = [%c(SBWorkspaceEvent) eventWithLabel:[NSString stringWithFormat:@"ActivateApplication %@ from AuxoCardView", identifier] handler:^{
+			%orig;
+		}];
+		
+		SBWorkspaceEventQueue *eventQueue = [%c(SBWorkspaceEventQueue) sharedInstance];
+		[eventQueue executeOrAppendEvent:event];
+	}
+	// iOS 8
+	else if (%c(FBWorkspaceEvent)) {
+		FBWorkspaceEvent *event = [%c(FBWorkspaceEvent) eventWithName:[NSString stringWithFormat:@"ActivateApplication %@ from AuxoCardView", identifier] handler:^{
+			%orig;
+		}];
+		
+		FBWorkspaceEventQueue *eventQueue = [%c(FBWorkspaceEventQueue) sharedInstance];
+		[eventQueue executeOrAppendEvent:event];
+	}
+}
+
 %end
 
 %hook AuxoAnimator
