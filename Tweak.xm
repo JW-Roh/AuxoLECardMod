@@ -73,6 +73,7 @@
 @interface SBWorkspaceEventQueue : NSObject
 + (instancetype)sharedInstance;
 - (BOOL)hasEventWithName:(NSString *)fp8;
+- (BOOL)hasEventWithPrefix:(NSString *)fp8;
 - (void)cancelEventsWithName:(NSString *)fp8;
 - (void)executeOrAppendEvent:(id)fp8;
 @end
@@ -329,24 +330,43 @@ void quitTopApp()
 }
 
 - (void)activateApplicationWithDisplayIdentifier:(NSString *)identifier fromCell:(id)cell {
-	// iOS 7
-	if (%c(SBWorkspaceEvent)) {
-		SBWorkspaceEvent *event = [%c(SBWorkspaceEvent) eventWithLabel:[NSString stringWithFormat:@"ActivateApplication %@ from AuxoCardView", identifier] handler:^{
-			%orig;
-		}];
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		Class EventQueueClass = Nil;
+		Class EventClass = Nil;
+		SEL EventWithName = Nil;
 		
-		SBWorkspaceEventQueue *eventQueue = [%c(SBWorkspaceEventQueue) sharedInstance];
-		[eventQueue executeOrAppendEvent:event];
-	}
-	// iOS 8
-	else if (%c(FBWorkspaceEvent)) {
-		FBWorkspaceEvent *event = [%c(FBWorkspaceEvent) eventWithName:[NSString stringWithFormat:@"ActivateApplication %@ from AuxoCardView", identifier] handler:^{
-			%orig;
-		}];
+		// iOS 7
+		if (%c(SBWorkspaceEvent)) {
+			EventQueueClass = %c(SBWorkspaceEventQueue);
+			EventClass = %c(SBWorkspaceEvent);
+			EventWithName = @selector(eventWithLabel:handler:);
+		}
+		// iOS 8
+		else if (%c(FBWorkspaceEvent)) {
+			EventQueueClass = %c(FBWorkspaceEventQueue);
+			EventClass = %c(FBWorkspaceEvent);
+			EventWithName = @selector(eventWithName:handler:);
+		}
 		
-		FBWorkspaceEventQueue *eventQueue = [%c(FBWorkspaceEventQueue) sharedInstance];
-		[eventQueue executeOrAppendEvent:event];
-	}
+		id eventQueue = [EventQueueClass sharedInstance];
+		BOOL flag = NO;
+		while ([eventQueue hasEventWithName:@"QuitTopApp"] || [eventQueue hasEventWithPrefix:@"TerminateApp:"]) {
+			flag = YES;
+			usleep(10*1000);
+		}
+		if (flag) usleep(100*1000);
+		
+		dispatch_async(dispatch_get_main_queue(), ^{
+			NSString *name = [NSString stringWithFormat:@"ActivateApplication %@ from AuxoCardView", identifier];
+			if ([eventQueue hasEventWithName:name]) return;
+			
+			id event = [EventClass performSelector:EventWithName withObject:name withObject:^{
+				%orig;
+			}];
+			
+			[eventQueue executeOrAppendEvent:event];
+		});
+	});
 }
 
 %end
